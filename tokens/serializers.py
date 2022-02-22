@@ -5,17 +5,9 @@ from tokens.models import Token
 
 
 class TokenSerializer(serializers.Serializer):
-    ip_address = serializers.CharField(max_length=14, validators=[RegexValidator(
-        regex=r'^\d{3}.\d{3}.\d{2}.\d{3}$',
-        message='Ip address must like XXX.XXX.XX.XXX',
-        code='invalid ip address'
-    )])
+    ip_address = serializers.CharField(max_length=14)
     text = serializers.CharField()
-    token = serializers.CharField(max_length=19, validators=[RegexValidator(
-        regex=r'^\d{4}-\d{4}-\d{4}-\d{4}$',
-        message='Token must like XXXX-XXXX-XXXX-XXXX',
-        code='invalid token'
-    )])
+    token = serializers.CharField(max_length=19)
 
     def save(self, **kwargs) -> None:
         data_token = self.validated_data['token']

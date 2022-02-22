@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from tokens.models import Token
 from tokens.serializers import TokenSerializer
-from tokens.service import request_to_third_party_api
+from tokens.service import magic 
 
 
 class TokenView(views.APIView):
@@ -55,19 +55,13 @@ class TokenView(views.APIView):
 
         serializer.save()
 
-        data_token, ip_address, text = request_to_third_party_api(
-            serializer.data.get('token'),
-            serializer.data.get('ip_address'),
-            serializer.data.get('text')
-        )
+        message = magic(serializer.data.get('text'))
 
         self._set_a_field_is_using_to_false_and_time_to_now(token)
 
         return Response(
             {
-                'token': data_token,
-                'ip_address': ip_address,
-                'text': text
+                'message': message
             },
             status=status.HTTP_200_OK
         )

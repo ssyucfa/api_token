@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Token(models.Model):
-    token = models.CharField(max_length=19, validators=[RegexValidator(regex=r'^\d{4}-\d{4}-\d{4}-\d{4}$')])
+    token = models.CharField(max_length=19)
     last_join = models.DateTimeField(blank=True)
     is_using = models.BooleanField(default=False)
 
