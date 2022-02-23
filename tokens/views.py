@@ -1,12 +1,11 @@
 from typing import Union, Type
 
-from django.utils import timezone
 from rest_framework import views, status
 from rest_framework.response import Response
 
 from tokens.models import Token
 from tokens.serializers import TokenSerializer
-from tokens.service import magic 
+from tokens.service import magic
 
 
 class TokenView(views.APIView):
@@ -14,22 +13,12 @@ class TokenView(views.APIView):
     model = Token
 
     @staticmethod
-    def _is_token_exist(token) -> Union[bool, Type[Token]]:
+    def _is_token_exist(token) -> Union[bool, Token]:
         try:
             token = Token.objects.get(token=token)
         except Token.DoesNotExist:
             return False
         return token
-
-    @staticmethod
-    def _set_a_field_is_using_to_false_and_time_to_now(token) -> None:
-        token.last_join = timezone.now()
-        token.is_using = False
-        token.save()
-
-    @staticmethod
-    def _get_a_field_is_using_from_token_model(token) -> False:
-        return token.is_using
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -45,23 +34,25 @@ class TokenView(views.APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-        elif self._get_a_field_is_using_from_token_model(token):
+        ip_address = serializer.data.get('ip_address')
+        if not token.is_using(ip_address):
+            token.set_last_join_and_ip_address(ip_address)
+            message = magic(serializer.data.get('text'))
             return Response(
                 {
-                    'error': 'Token is already using'
+                    'message': message
                 },
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_200_OK
             )
-
-        serializer.save()
-
-        message = magic(serializer.data.get('text'))
-
-        self._set_a_field_is_using_to_false_and_time_to_now(token)
-
         return Response(
             {
-                'message': message
+                'error': 'Token is already using by another ip'
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_400_BAD_REQUEST
         )
+
+
+
+
+
+

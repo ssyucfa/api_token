@@ -39,4 +39,3 @@ def magic(get_message):
             return f'{exception=}'
     except Exception as error:
         return f'{error=}'
-
