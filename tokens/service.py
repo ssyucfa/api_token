@@ -1,6 +1,7 @@
+from django.core.cache import cache
+
 import difflib
 import random
-
 import mysql.connector
 
 
@@ -14,13 +15,18 @@ def magic(get_message):
                                          database="word_all")
         try:
             cur = myconn.cursor()
-            cur.execute(f"select question from words_{language}")
-            result = cur.fetchall()
-            question = []
-            for i in result:
-                question.append(i[0])
+            qs = cache.get(f'questions_{language}', False)
+            if not qs:
+                cur.execute(f"select question from words_{language}")
+                result = cur.fetchall()
+                questions = []
+                for i in result:
+                    questions.append(i[0])
 
-            question = random.choice(difflib.get_close_matches(message, question))
+                cache.set(f'questions_{language}', questions, None)
+                qs = questions
+
+            question = random.choice(difflib.get_close_matches(message, qs))
 
             response = []
 
@@ -33,9 +39,9 @@ def magic(get_message):
             word = random.choice(response)
 
             return word
-        except Exception as exception:
+        except Exception as _:
             myconn.close()
 
-            return f'{exception=}'
-    except Exception as error:
-        return f'{error=}'
+            return 'error'
+    except Exception as _:
+        return 'error'
