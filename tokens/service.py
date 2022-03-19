@@ -11,7 +11,7 @@ def magic(get_message):
         myconn = mysql.connector.connect(host='localhost',
                                          user='user_root',
                                          password='123Df321!',
-                                         database="words_all")
+                                         database="word_all")
         try:
             cur = myconn.cursor()
             cur.execute(f"select question from words_{language}")

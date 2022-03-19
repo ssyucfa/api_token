@@ -4,8 +4,8 @@ from django.utils import timezone
 
 class Token(models.Model):
     token = models.CharField(max_length=19)
-    last_join = models.DateTimeField(blank=True)
-    ip_address = models.CharField(max_length=255, default='', blank=True)
+    last_join = models.DateTimeField(blank=True, null=True)
+    ip_address = models.CharField(max_length=255, default='', null=True, blank=True)
 
     def __str__(self):
         return f'<{self.token}:{self.last_join}>'
