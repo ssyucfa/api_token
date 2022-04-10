@@ -12,8 +12,9 @@ from mysql.connector.cursor import CursorBase
 def trap_error(func):
     def wrapper(*args, **kwargs):
         try:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         except Exception:
+
             return 'error'
     return wrapper
 
@@ -26,7 +27,7 @@ class WordsAccessor:
             password='123Df321!',
             database="word_all"
         )
-        self.cursor: CursorBase = self.db.cursor()
+        self.cursor: CursorBase = self.db.cursor(buffered=True)
         self.answers_by_id: dict[str, str] = {}
 
     @trap_error
@@ -57,11 +58,11 @@ class WordsAccessor:
         return random.choice(difflib.get_close_matches(text, questions))
 
     @trap_error
-    def get_answer(self, text: str):
-        language = text[0:2]
-        text = text[2:-18]
-        message_id = text[-18:]
-
+    def get_answer(self, get_message: str):
+        language = get_message[0:2]
+        text = get_message[2:-18]
+        message_id = get_message[-18:]
+        
         queryset = self._get_queryset_from_cache(language)
         if not queryset:
             questions = self._get_questions(language)
