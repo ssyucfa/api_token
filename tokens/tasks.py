@@ -1,17 +1,15 @@
 from celery import shared_task
 
 from .models import Token
+from .service import words
 
 
 @shared_task
 def delete_ip_address_from_token():
-    try:
-        tokens = Token.objects.exclude(ip_address='')
-        if not tokens:
-            return
+    tokens = Token.objects.exclude(ip_address='')
+    tokens.bulk_update(ip_address='')
 
-        for token in tokens:
-            token.ip_address = ''
-            token.save()
-    except Exception as _:
-        pass
+
+@shared_task
+def clear_answers():
+    words.answers_by_id = {}

@@ -128,5 +128,9 @@ CELERY_BEAT_SCHEDULE = {
     'first-task': {
         'task': 'tokens.tasks.delete_ip_address_from_token',
         'schedule': 300.0
-    }
+    },
+    'second-task': {
+        'task': 'tokens.tasks.clear_answers',
+        'schedule': 180.0
+    },
 }

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from tokens.models import Token
 from tokens.serializers import TokenSerializer
-from tokens.service import magic
+from tokens.service import words
 
 
 class TokenView(views.APIView):
@@ -37,7 +37,7 @@ class TokenView(views.APIView):
         ip_address = serializer.data.get('ip_address')
         if not token.is_using(ip_address):
             token.set_last_join_and_ip_address(ip_address)
-            message = magic(serializer.data.get('text'))
+            message = words.get_answer(serializer.data.get('text'))
             return Response(
                 {
                     'message': message
@@ -50,9 +50,3 @@ class TokenView(views.APIView):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
-
-
-
-
-
-
