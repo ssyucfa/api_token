@@ -27,25 +27,22 @@ class WordsAccessor:
             password='123Df321!',
             database="word_all"
         )
-        self.cursor: CursorBase = self.db.cursor(buffered=True)
         self.answers_by_id: dict[str, str] = {}
 
     @trap_error
-    def _get_questions(self, language: str) -> list[str]:
-        self.cursor.execute(f"select question from words_{language}")
-        result = self.cursor.fetchall()
-
-        questions = [i[0] for i in result]
+    def _get_questions(self, language: str, cursor) -> list[str]:
+        cursor.execute(f"select question from words_{language}")
+        
+        questions = [i[0] for i in cursor]
         return questions
 
     @trap_error
-    def _get_answer(self, question, language: str):
-        self.cursor.execute(
+    def _get_answer(self, question, language: str, cursor):
+        cursor.execute(
             f"select response from words_{language} where question like '{question}%'"
         )
-        result = self.cursor.fetchall()
 
-        response = [i[0] for i in result]
+        response = [i[0] for i in cursor]
         answer = random.choice(response)
         return answer
 
@@ -63,21 +60,25 @@ class WordsAccessor:
         text = get_message[2:-18]
         message_id = get_message[-18:]
         
+        cursor = self.db.cursor(buffered=True)
+
         queryset = self._get_queryset_from_cache(language)
         if not queryset:
-            questions = self._get_questions(language)
+            questions = self._get_questions(language, cursor)
 
             cache.set(f'questions_{language}', questions, None)
             queryset = questions
 
         question = self._get_question(text, queryset)
-        answer = self._get_answer(question, language)
+        answer = self._get_answer(question, language, cursor)
 
         if self.answers_by_id.get(message_id) == answer:
             return 'error'
 
+        print(self.answers_by_id)
         self.answers_by_id[message_id] = answer
         return answer
 
 
 words = WordsAccessor()
+
