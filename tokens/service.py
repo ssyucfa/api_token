@@ -6,7 +6,6 @@ import difflib
 import random
 import mysql.connector
 from mysql.connector import MySQLConnection
-from mysql.connector.cursor import CursorBase
 
 
 def trap_error(func):
@@ -14,7 +13,6 @@ def trap_error(func):
         try:
             return func(*args, **kwargs)
         except Exception:
-
             return 'error'
     return wrapper
 
@@ -27,13 +25,14 @@ class WordsAccessor:
             password='123Df321!',
             database="word_all"
         )
-        self.answers_by_id: dict[str, str] = {}
 
     @trap_error
     def _get_questions(self, language: str, cursor) -> list[str]:
         cursor.execute(f"select question from words_{language}")
-        
-        questions = [i[0] for i in cursor]
+
+        results = cursor.fetchall()
+
+        questions = [i[0] for i in results]
         return questions
 
     @trap_error
@@ -42,7 +41,9 @@ class WordsAccessor:
             f"select response from words_{language} where question like '{question}%'"
         )
 
-        response = [i[0] for i in cursor]
+        results = cursor.fetchall()
+
+        response = [i[0] for i in results]
         answer = random.choice(response)
         return answer
 
@@ -60,7 +61,7 @@ class WordsAccessor:
         text = get_message[2:-18]
         message_id = get_message[-18:]
         
-        cursor = self.db.cursor(buffered=True)
+        cursor = self.db.cursor()
 
         queryset = self._get_queryset_from_cache(language)
         if not queryset:
@@ -71,14 +72,11 @@ class WordsAccessor:
 
         question = self._get_question(text, queryset)
         answer = self._get_answer(question, language, cursor)
-
-        if self.answers_by_id.get(message_id) == answer:
-            return 'error'
-
-        print(self.answers_by_id)
-        self.answers_by_id[message_id] = answer
         return answer
 
 
-words = WordsAccessor()
+def do_magic(message: str) -> str:
+    words = WordsAccessor()
+    return words.get_answer(message)
 
+words = WordsAccessor()
