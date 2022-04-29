@@ -6,9 +6,9 @@ SECRET_KEY = 'django-insecure-s=g&^%o5xx^_nx3-fy^#n+rf)#ku!%oskw0cba0#77g-9*(7f%
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '94.103.89.124', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '94.103.89.124', '127.0.0.1', '195.2.84.176']
 
-CSRF_TRUSTED_ORIGINS = ['https://94.103.89.124']
+CSRF_TRUSTED_ORIGINS = ['https://94.103.89.124', 'https://195.2.84.176']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -59,12 +59,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'api_tokens',
-        'USER': 'django',
-        'PASSWORD': 'django-user-password',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',
-        'PORT': '3306',
+        'PORT': '5432',
     }
 }
 
